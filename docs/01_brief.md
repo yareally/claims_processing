@@ -1,5 +1,27 @@
 # The brief
 
+## What you need to do
+
+Finish two methods and add at least two tests. Everything else is already written.
+
+| File | What to write |
+|---|---|
+| `src/Claims.Api/Workflow/ClaimSubmissionWorkflow.cs` | The method `SubmitAsync`, plus any private helper methods it needs |
+| `src/Claims.Api/ClaimEndpoints.cs` | The method `ToHttpResult`, which turns a claim status into an HTTP response |
+| `tests/Claims.Tests/` | At least two tests of your own, for cases the given tests miss |
+
+| Level | Code to write | Failing tests to fix | Command |
+|---|---|---|---|
+| 1 | Call the steps in order, stop if the policy doesn't cover the claim, catch failures, undo finished steps newest first, and save the final claim. Write `ToHttpResult`. | 13 | `dotnet test --filter Level1` |
+| 2 | Retry each undo, continue when one still fails, ignore the caller's cancellation during undo, save after each step, and keep the claim when the email fails. | 6 | `dotnet test --filter Level2` |
+| 3 | Return the existing claim for a repeated `Idempotency-Key`. Keep the email address out of the logs. | 6 | `dotnet test --filter Level3` |
+
+Another 6 tests send HTTP requests to the stub services, and they pass once the levels are done: `dotnet test --filter EndToEnd`.
+
+**Already written, so you only call it:** the five service interfaces and their HTTP clients, `InMemoryClaimStore`, `ClaimRecord` and its statuses, `WorkflowOptions`, the API endpoints, the request validation, and the stub services.
+
+Do not change the public method signatures, because the tests depend on them. The numbered acceptance criteria below give the details.
+
 ## User story
 
 As a policyholder, I want to submit an insurance claim online, so that money is set aside for it, a case is opened, and an adjuster starts work.
@@ -17,13 +39,6 @@ No single database transaction can cover five separate services. Each service co
 | 5 | `INotificationService.SendClaimReceivedAsync` | Emails the claimant | Cannot be undone |
 
 Steps 1 to 4 are required. Step 5 is not: see item 10.
-
-## Where you write code
-
-- `src/Claims.Api/Workflow/ClaimSubmissionWorkflow.cs`: the method `SubmitAsync`
-- `src/Claims.Api/ClaimEndpoints.cs`: the method `ToHttpResult`
-
-The service clients, the claim store, and the request validation are finished. You may add private helper methods and tests. Do not change the public method signatures, because the tests depend on them.
 
 ## Acceptance criteria
 
