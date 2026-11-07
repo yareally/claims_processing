@@ -10,7 +10,7 @@ public sealed class Level1ApiTests
 {
     [Theory]
     [InlineData(ClaimStatus.Submitted, 201)]
-    [InlineData(ClaimStatus.Rejected, 400)]
+    [InlineData(ClaimStatus.Rejected, 422)]
     [InlineData(ClaimStatus.InProgress, 409)]
     [InlineData(ClaimStatus.Compensated, 503)]
     [InlineData(ClaimStatus.CompensationFailed, 500)]
@@ -34,9 +34,11 @@ public sealed class Level1ApiTests
     [Fact]
     public void ToHttpResult_rejected_claim_has_the_claim_response_as_its_body()
     {
-        // TODO: call ClaimEndpoints.ToHttpResult with a rejected claim that has a RejectionReason.
-        // Cast the result to IValueHttpResult. Check that its Value equals ClaimResponse.From(claim).
-        Assert.Fail("This test is empty. Follow its TODO.");
+        var claim = NewClaim(ClaimStatus.Rejected) with { RejectionReason = "Policy lapsed" };
+
+        var result = Assert.IsAssignableFrom<IValueHttpResult>(ClaimEndpoints.ToHttpResult(claim));
+
+        Assert.Equal(ClaimResponse.From(claim), result.Value);
     }
 
     private static ClaimRecord NewClaim(ClaimStatus status) =>

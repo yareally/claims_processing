@@ -12,7 +12,7 @@ public sealed class Level2FailureHandlingTests
     public async Task SubmitAsync_retries_an_undo_that_fails_briefly()
     {
         _context.Services.FailAlways(AssignAdjuster);
-        _context.Services.FailNext(ReleaseReserve, times: 3);
+        _context.Services.FailNext(ReleaseReserve, times: 2);
 
         var claim = await _context.SubmitAsync();
 
@@ -50,12 +50,21 @@ public sealed class Level2FailureHandlingTests
     }
 
     [Fact]
-    public void SubmitAsync_records_every_undo_that_fails()
+    public async Task SubmitAsync_records_every_undo_that_fails()
     {
-        // TODO: make AssignAdjuster, CancelCase, and ReleaseReserve always fail, then call SubmitAsync.
-        // Check the status and both entries in CompensationFailures, newest step first.
-        // Change this method to "async Task", because it needs await.
-        Assert.Fail("This test is empty. Follow its TODO.");
+        _context.Services.FailAlways(AssignAdjuster);
+        _context.Services.FailAlways(CancelCase);
+        _context.Services.FailAlways(ReleaseReserve);
+
+        var claim = await _context.SubmitAsync();
+
+        Assert.Equal(ClaimStatus.CompensationFailed, claim.Status);
+        Assert.Equal(
+            [
+                new CompensationFailure(WorkflowStep.OpenCase, FakeServices.CaseId),
+                new CompensationFailure(WorkflowStep.CreateReserve, FakeServices.ReserveId),
+            ],
+            claim.CompensationFailures);
     }
 
     [Fact]

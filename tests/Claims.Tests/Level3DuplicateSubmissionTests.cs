@@ -1,3 +1,4 @@
+using Claims.Api.Services;
 using Claims.Api.Workflow;
 using static Claims.Tests.ServiceCall;
 
@@ -33,12 +34,15 @@ public sealed class Level3DuplicateSubmissionTests
     }
 
     [Fact]
-    public void SubmitAsync_same_key_after_a_rejection_does_not_check_coverage_again()
+    public async Task SubmitAsync_same_key_after_a_rejection_does_not_check_coverage_again()
     {
-        // TODO: make the policy service return no coverage, then call SubmitAsync twice with one key.
-        // Check that the second claim is Rejected and that CheckCoverage ran once.
-        // Change this method to "async Task", because it needs await.
-        Assert.Fail("This test is empty. Follow its TODO.");
+        _context.Services.Coverage = new CoverageResult(false, "Policy lapsed");
+        await _context.SubmitAsync("key-1");
+
+        var second = await _context.SubmitAsync("key-1");
+
+        Assert.Equal(ClaimStatus.Rejected, second.Status);
+        Assert.Equal(1, _context.Services.CountOf(CheckCoverage));
     }
 
     [Fact]

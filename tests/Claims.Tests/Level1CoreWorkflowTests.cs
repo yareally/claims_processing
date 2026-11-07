@@ -100,6 +100,6 @@ public sealed class Level1CoreWorkflowTests
 
         Assert.Equal(ClaimStatus.Compensated, claim.Status);
         Assert.Equal(WorkflowStep.AssignAdjuster, claim.FailedStep);
-        Assert.Equal([CheckCoverage, CreateReserve, OpenCase, AssignAdjuster, ReleaseReserve, CancelCase], _context.Services.Calls);
+        Assert.Equal([CheckCoverage, CreateReserve, OpenCase, AssignAdjuster, CancelCase, ReleaseReserve], _context.Services.Calls);
     }
 }
