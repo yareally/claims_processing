@@ -1,6 +1,6 @@
 # What to know without looking it up
 
-A tool that answers language questions will not design the workflow for you. Learn the design questions by heart. Use the C# section to practise what you would otherwise have to look up.
+Learn the design questions by heart. Use the C# section to practise what you would otherwise have to look up.
 
 ## Design questions to answer before you write code
 
