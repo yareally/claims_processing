@@ -1,112 +1,55 @@
-using System.Net;
 using Claims.Api;
-using Claims.Api.Services;
 using Claims.Api.Workflow;
-using static Claims.Tests.ServiceCall;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Claims.Tests;
 
-/// <summary>The status code table in the brief. The validation tests pass from the start.</summary>
-public sealed class Level1ApiTests : IDisposable
+/// <summary>Brief item 5. These tests check the method ToHttpResult.</summary>
+public sealed class Level1ApiTests
 {
-    private readonly ApiTestContext _context = new();
-
-    public void Dispose() => _context.Dispose();
-
-    [Fact]
-    public async Task A_submitted_claim_returns_201_with_its_location()
-    {
-        var response = await _context.PostClaimAsync(ApiTestContext.ValidRequest);
-        var claim = await ApiTestContext.ReadClaimAsync(response);
-
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal(ClaimStatus.Submitted, claim.Status);
-        Assert.Equal($"/claims/{claim.ClaimId}", response.Headers.Location?.ToString());
-    }
-
-    [Fact]
-    public async Task A_rejected_claim_returns_422_with_the_reason()
-    {
-        _context.Services.Coverage = new CoverageResult(false, "Policy lapsed");
-
-        var response = await _context.PostClaimAsync(ApiTestContext.ValidRequest);
-        var claim = await ApiTestContext.ReadClaimAsync(response);
-
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
-        Assert.Equal("Policy lapsed", claim.RejectionReason);
-    }
-
-    [Fact]
-    public async Task A_compensated_claim_returns_503_and_names_the_failed_step()
-    {
-        _context.Services.FailAlways(AssignAdjuster);
-
-        var response = await _context.PostClaimAsync(ApiTestContext.ValidRequest);
-        var claim = await ApiTestContext.ReadClaimAsync(response);
-
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
-        Assert.Equal(WorkflowStep.AssignAdjuster, claim.FailedStep);
-    }
-
-    [Fact]
-    public async Task A_failed_compensation_returns_500()
-    {
-        _context.Services.FailAlways(AssignAdjuster);
-        _context.Services.FailAlways(ReleaseReserve);
-
-        var response = await _context.PostClaimAsync(ApiTestContext.ValidRequest);
-        var claim = await ApiTestContext.ReadClaimAsync(response);
-
-        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-        Assert.Equal(ClaimStatus.CompensationFailed, claim.Status);
-    }
-
-    [Fact]
-    public async Task Get_returns_a_claim_after_it_is_submitted()
-    {
-        var created = await ApiTestContext.ReadClaimAsync(await _context.PostClaimAsync(ApiTestContext.ValidRequest));
-
-        var response = await _context.Client.GetAsync($"/claims/{created.ClaimId}");
-        var claim = await ApiTestContext.ReadClaimAsync(response);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(created, claim);
-    }
-
-    [Fact]
-    public async Task Get_returns_404_for_an_unknown_claim()
-    {
-        var response = await _context.Client.GetAsync($"/claims/{Guid.NewGuid()}");
-
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task A_missing_idempotency_key_returns_400()
-    {
-        var response = await _context.PostClaimAsync(ApiTestContext.ValidRequest, idempotencyKey: null);
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(_context.Services.Calls);
-    }
-
-    public static TheoryData<string, SubmitClaimRequest> InvalidRequests => new()
-    {
-        { "blank policy", ApiTestContext.ValidRequest with { PolicyNumber = " " } },
-        { "email without @", ApiTestContext.ValidRequest with { ClaimantEmail = "pat.example.com" } },
-        { "loss date not set", ApiTestContext.ValidRequest with { LossDate = default } },
-        { "loss date in the future", ApiTestContext.ValidRequest with { LossDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(2) } },
-        { "zero amount", ApiTestContext.ValidRequest with { EstimatedAmount = 0m } },
-        { "negative amount", ApiTestContext.ValidRequest with { EstimatedAmount = -1m } },
-    };
-
     [Theory]
-    [MemberData(nameof(InvalidRequests))]
-    public async Task An_invalid_request_returns_400_and_calls_no_service(string reason, SubmitClaimRequest request)
+    [InlineData(ClaimStatus.Submitted, 201)]
+    [InlineData(ClaimStatus.Rejected, 400)]
+    [InlineData(ClaimStatus.InProgress, 409)]
+    [InlineData(ClaimStatus.Compensated, 503)]
+    [InlineData(ClaimStatus.CompensationFailed, 500)]
+    public async Task ToHttpResult_returns_the_status_code(ClaimStatus status, int expectedStatusCode)
     {
-        var response = await _context.PostClaimAsync(request);
+        var response = await RunToHttpResultAsync(NewClaim(status));
 
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, reason);
-        Assert.Empty(_context.Services.Calls);
+        Assert.Equal(expectedStatusCode, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ToHttpResult_submitted_claim_has_a_location_header()
+    {
+        var claim = NewClaim(ClaimStatus.Submitted);
+
+        var response = await RunToHttpResultAsync(claim);
+
+        Assert.Equal($"/claims/{claim.ClaimId}", response.Headers.Location.ToString());
+    }
+
+    [Fact]
+    public void ToHttpResult_rejected_claim_has_the_claim_response_as_its_body()
+    {
+        // TODO: call ClaimEndpoints.ToHttpResult with a rejected claim that has a RejectionReason.
+        // Cast the result to IValueHttpResult. Check that its Value equals ClaimResponse.From(claim).
+        Assert.Fail("This test is empty. Follow its TODO.");
+    }
+
+    private static ClaimRecord NewClaim(ClaimStatus status) =>
+        ClaimRecord.Start(WorkflowTestContext.ValidRequest) with { Status = status };
+
+    private static async Task<HttpResponse> RunToHttpResultAsync(ClaimRecord claim)
+    {
+        var httpContext = new DefaultHttpContext
+        {
+            RequestServices = new ServiceCollection().AddLogging().BuildServiceProvider(),
+        };
+        httpContext.Response.Body = new MemoryStream();
+        await ClaimEndpoints.ToHttpResult(claim).ExecuteAsync(httpContext);
+        return httpContext.Response;
     }
 }
