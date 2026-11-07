@@ -17,7 +17,29 @@ public static class ClaimEndpoints
     {
         // TODO: return the status codes listed in docs/01_brief.md.
         // Use ClaimResponse.From(claim) as the response body.
-        return Results.StatusCode(StatusCodes.Status501NotImplemented);
+
+        var claimResponse = ClaimRecord.From(claim);
+        var statusCode = -1;
+
+        if (claimResponse.Status == ClaimStatus.InProgress)
+    
+        {
+            statusCode = Results.StatusCode(409);
+        } else if (claimResponse.Status == ClaimStatus.Submitted)
+        {
+            statusCode = Results.StatusCode(201);
+        } else if (claimResponse.Status == ClaimStatus.Rejected)
+        {
+            statusCode = Results.StatusCode(422);
+        } else if (claimResponse.Status == claimStatus.Compensated)
+        {
+            statusCode = Results.StatusCode(503);
+        } else
+        {
+            statusCode = Results.StatusCode(500);
+        }
+        
+        return Results.StatusCode(statusCode);
     }
 
     private static async Task<IResult> SubmitAsync(

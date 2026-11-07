@@ -19,7 +19,7 @@ Finish two methods. Everything else is already written, including the tests, whi
 
 **Already written, so you only call it:** the five service interfaces and their HTTP clients, `InMemoryClaimStore`, `ClaimRecord` and its statuses, `WorkflowOptions`, the API endpoints, the request validation, and the stub services.
 
-Do not change the public method signatures, because the tests depend on them. The numbered acceptance criteria below give the details.
+Do not change the public method signatures, because the tests depend on them. `SubmitAsync` is already marked `async`, so you can use `await` in it. The numbered acceptance criteria below give the details.
 
 ## User story
 

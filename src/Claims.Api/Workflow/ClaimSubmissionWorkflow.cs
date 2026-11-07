@@ -34,13 +34,47 @@ public sealed class ClaimSubmissionWorkflow
         _logger = logger;
     }
 
-    public Task<ClaimRecord> SubmitAsync(
+    public async Task<ClaimRecord> SubmitAsync(
         SubmitClaimRequest request,
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
         // TODO: meet the acceptance criteria in docs/01_brief.md.
         // Add private helper methods as you need them.
-        return Task.FromResult(ClaimRecord.Start(request));
+
+       ClaimRecord claimRecord = null;
+       var coverResult = await _policy.CheckCoverageAsync(request.PolicyNumber, request.Date, cancellationToken);
+
+     
+        if (!coverResult.IsCovered)
+        {
+            // claimRecord = _store.GetOrAddAsync(idempotencyKey, request.ClaimRecord, cancellationToken);
+            var rejectClaim = request.ClaimRecord with {ClaimStatus = ClaimStatus.Rejected, RejectionReason = coverResult.reason};
+            return rejectClaim;
+            
+        };
+
+        try
+        {
+        var claimReserveId = await _reserve.CreateReserveAsync(request.ClaimId, request.policyNumber, request.amount, cancellationToken);
+
+        var caseId = await _cases.OpenCaseAsync(request.claimId, request.policyNumber, cancellationToken);
+
+        var adjusterId = await _adjusters.AssignAdjusterAsync(caseId, cancellationToken);
+        await _notifications.SendClaimReceivedAsync(request.email, request.claimId, cancellationToken);
+
+        var successfulClaimRecord = request.claimRecord with 
+        {ClaimStatus = ClaimStatus.Submitted, ReserveId = claimReserveId, CaseId = caseId, AssignmentId = adjusterId};
+        return successfulClaimRecord;
+
+        } catch (Exception exception)
+        {
+            
+        }
+    
+        
+      
+       
     }
-}
+
+};
