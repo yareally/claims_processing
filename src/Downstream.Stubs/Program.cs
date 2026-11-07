@@ -64,8 +64,6 @@ app.MapGet("/debug/state", (StubState state) => Results.Ok(state.Snapshot()));
 
 app.Run();
 
-/// <summary>Lets the test project start this app through WebApplicationFactory.</summary>
-public sealed class StubsEntryPoint;
 
 public sealed record StubSnapshot(IReadOnlyList<string> OpenReserves, IReadOnlyList<string> OpenCases, IReadOnlyList<string> Calls);
 
