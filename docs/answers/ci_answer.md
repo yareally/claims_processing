@@ -10,7 +10,28 @@
 >
 > I would also require the branch to be up to date with `main`, or use a merge queue, so the tests run against the code as it will be after the merge. And I would apply the rule to admins, so nobody can bypass it by accident.
 >
+> Ideally nothing fails there as a surprise. Developers run the same commands locally, with the same build settings, so CI confirms what they already know.
+>
 > AI-written code goes through the same checks, and a person still reviews it.
+
+## Know what will fail before you push
+
+CI is the final check, and it should rarely be the first place a problem appears. Make local checks match it:
+
+- **Run the same commands.** Before pushing, run these three, by hand or from a pre-push hook (a script git runs before each push):
+
+  ```
+  dotnet format --verify-no-changes
+  dotnet build -warnaserror
+  dotnet test
+  ```
+
+- **Share the same settings.** Put rules such as `TreatWarningsAsErrors` in `Directory.Build.props`, so a local build fails the same way a CI build does.
+- **Turn each surprise into an earlier check.** When CI catches something, add a test or a local check for it, so it fails sooner next time.
+
+This repo has a gap you can point out: `.github/workflows/ci.yml` passes `-warnaserror`, but `Directory.Build.props` does not set `TreatWarningsAsErrors`, so a plain local `dotnet build` will not show those failures.
+
+Some failures will still appear only in CI, such as those caused by a different operating system or a clean checkout. That is why CI stays required.
 
 ## The answer to each question in the prompt
 
