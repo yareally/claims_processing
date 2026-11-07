@@ -24,6 +24,9 @@ The project and the .NET 10 SDK are already on this PC, inside WSL (the Linux sy
 
    All 27 tests fail at the start, and each run prints only the first failure. Fix it, run again, and repeat, one level at a time. The last command opens the project in VS Code.
 
+3. Check that the bottom-left corner of VS Code says **WSL: Debian**. If it doesn't, the C# extension runs on Windows, finds no .NET SDK, and reports "No .NET SDKs were found". Close that window and use `code .` from the WSL terminal. Don't open the folder through File Explorer or a `\\wsl.localhost` path.
+4. In the Extensions panel, find **C# Dev Kit** and click **Install in WSL: Debian**. Extensions installed on Windows don't run inside WSL.
+
 The `solution` branch holds the answers. Stay off it until you finish.
 
 ## Practise under the same limits
