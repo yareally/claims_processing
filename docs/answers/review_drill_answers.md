@@ -17,4 +17,4 @@ To see these fail, paste the flawed method into `ClaimSubmissionWorkflow.cs` on 
 
 ## What this drill shows
 
-The draft compiles, and all three `Success_` tests in `Level1CoreWorkflowTests` pass against it. Most of its bugs show up only when something fails, which is where AI-written drafts need the closest review. Ask the AI, or yourself, what happens at each line if the previous call threw an exception or the caller left.
+The draft compiles, and all three `Success_` tests in `Level1CoreWorkflowTests` pass against it. Most of its bugs show up only when something fails, which is where a review needs the closest attention. Ask what happens at each line if the previous call threw an exception or the caller left.

@@ -11,8 +11,6 @@
 > I would also require the branch to be up to date with `main`, or use a merge queue, so the tests run against the code as it will be after the merge. And I would apply the rule to admins, so nobody can bypass it by accident.
 >
 > Ideally nothing fails there as a surprise. Developers run the same commands locally, with the same build settings, so CI confirms what they already know.
->
-> AI-written code goes through the same checks, and a person still reviews it.
 
 ## Know what will fail before you push
 
@@ -42,7 +40,6 @@ Some failures will still appear only in CI, such as those caused by a different 
 | Who can get around it? | Admins can, unless you turn on "Do not allow bypassing the above settings". Also block force pushes to `main`. |
 | What if `main` changes after the checks pass? | Two changes can each pass alone and still break together. Turn on "Require branches to be up to date before merging", or use a merge queue when the team is large. |
 | What if the workflow never runs? | The required check stays pending and the pull request stays blocked. See the first trap below. |
-| What about AI-written code? | It gets no exceptions. The checks catch mechanical problems. A reviewer checks the logic, and `CODEOWNERS` can require the right reviewer for sensitive files. |
 
 ## Traps worth naming
 
