@@ -16,7 +16,9 @@ public sealed class Level3DuplicateSubmissionTests
 
         var second = await _context.SubmitAsync("key-1");
 
-        Assert.Equal(first, second);
+        Assert.Equal(first.ClaimId, second.ClaimId);
+        Assert.Equal(first.Status, second.Status);
+        Assert.Equal(first.NotificationSent, second.NotificationSent);
         Assert.Equal([CheckCoverage, CreateReserve, OpenCase, AssignAdjuster, SendNotification], _context.Services.Calls);
     }
 

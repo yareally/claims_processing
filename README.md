@@ -18,11 +18,11 @@ The project and the .NET 10 SDK are already on this PC, inside WSL (the Linux sy
    ```
    cd ~/idea_projects/claims_workflow_practice
    git switch -c my-attempt
-   dotnet test
+   dotnet test --filter Level1
    code .
    ```
 
-   All 27 tests fail at the start, and `dotnet test` prints only the first failure. Fix it, run again, and repeat. The last command opens the project in VS Code.
+   All 27 tests fail at the start, and each run prints only the first failure. Fix it, run again, and repeat, one level at a time. The last command opens the project in VS Code.
 
 The `solution` branch holds the answers. Stay off it until you finish.
 
