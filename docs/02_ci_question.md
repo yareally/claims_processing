@@ -19,7 +19,6 @@ A strong answer covers each of these questions:
 - Who can get around the rule?
 - What if `main` changes after the checks pass?
 - What happens to a required check if its workflow never runs?
-- How does AI-written code fit in?
 
 ## Try it on GitHub (optional, 15 minutes, outside the timed run)
 

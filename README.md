@@ -28,7 +28,7 @@ The `solution` branch holds the answers. Stay off it until you finish.
 
 ## Practise under the same limits
 
-The Ropes editor is a limited online version of VS Code. Outside AI is not allowed, and the platform watches for it. Its built-in AI tool may do little more than answer questions about the language. So practise without AI help on the design, and read the rules in `docs/04_ai_usage.md`.
+The Ropes editor is a limited online version of VS Code. Use no AI tools during a timed run.
 
 Plan three runs:
 
@@ -36,7 +36,7 @@ Plan three runs:
 |---|---|---|---|
 | 1 | None | C# extensions, the hints in the brief, `docs/06_syntax_sheet.md` | Learn the design |
 | 2 | 55 minutes | `docs/06_syntax_sheet.md`, C# extensions off | Find what slows you down |
-| 3 | 55 minutes | Language questions only, C# extensions off | Match the assessment |
+| 3 | 55 minutes | Nothing extra, C# extensions off | Match the assessment |
 
 To turn the C# extensions off, open the Extensions panel in VS Code. On **C# Dev Kit** and **C#**, open the gear menu and choose **Disable (Workspace)**. Then run the tests in the terminal, because the assessment may not have autocomplete or a test panel.
 
@@ -94,7 +94,7 @@ Then send the requests in `demo.http`. The policy number in the request decides 
    git diff my-attempt solution -- src/
    ```
 
-3. Do the code review drill in `docs/05_review_drill.md`. It takes 10 minutes and practises finding bugs in AI-written code.
+3. Do the code review drill in `docs/05_review_drill.md`. It takes 10 minutes and practises finding bugs in someone else's code.
 
 4. Read the answers in `docs/answers/` on the `solution` branch:
 
@@ -111,4 +111,4 @@ To try again from a clean start, run `git switch main`, then `git switch -c atte
 | `src/Claims.Api` | The API you finish. Your two TODOs are in `Workflow/ClaimSubmissionWorkflow.cs` and `ClaimEndpoints.cs`. |
 | `src/Downstream.Stubs` | One small app that stands in for the five services the workflow calls. |
 | `tests/Claims.Tests` | The tests, named by level. |
-| `docs/` | The brief, the CI question, the walkthrough, the AI rules, the review drill, and the syntax sheet. |
+| `docs/` | The brief, the CI question, the walkthrough, the review drill, and the syntax sheet. |

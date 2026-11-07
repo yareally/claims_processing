@@ -2,7 +2,7 @@
 
 Do this after the timed run. Allow 10 minutes.
 
-The job description asks for reviews that check generated code against "engineering, security, and quality standards." Imagine an AI tool wrote this method for you. It compiles, and it looks reasonable on a quick read.
+The job description asks for code reviews against "engineering, security, and quality standards." Imagine a teammate sent you this method to review. It compiles, and it looks reasonable on a quick read.
 
 **Find at least 7 problems.** There are 10. For each one, say what goes wrong for the business, not only what is wrong with the code. The answer key is `docs/answers/review_drill_answers.md` on the `solution` branch.
 

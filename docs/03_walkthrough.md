@@ -9,8 +9,7 @@ Use this order:
 1. **The problem (20 seconds).** What the workflow does, and why one database transaction cannot cover it.
 2. **The design (60 seconds).** How the steps run, how compensation works, and why the email comes last.
 3. **Failure cases (60 seconds).** Pick the two you handled most carefully, and say why they matter to the business.
-4. **Tools (20 seconds).** What you looked up or asked the AI tool, and how you checked the answer.
-5. **What you would do next (20 seconds).** What this code still lacks for production.
+4. **What you would do next (40 seconds).** What this code still lacks for production.
 
 ## Likely follow-up questions
 
@@ -40,5 +39,4 @@ Give yourself one point for each.
 - [ ] I explained why an email failure does not undo the claim.
 - [ ] I explained how the `Idempotency-Key` header stops duplicate work.
 - [ ] I named at least two gaps before production, such as a durable store and a recovery job.
-- [ ] I gave one specific example of what I looked up or asked, and how I checked it.
 - [ ] I finished within 3 minutes without reading from notes.
