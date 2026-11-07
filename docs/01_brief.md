@@ -2,21 +2,19 @@
 
 ## What you need to do
 
-Finish two methods and add at least two tests. Everything else is already written.
+Finish two methods, fix the wrong tests, and fill in the empty tests. Everything else is already written.
 
 | File | What to write |
 |---|---|
 | `src/Claims.Api/Workflow/ClaimSubmissionWorkflow.cs` | The method `SubmitAsync`, plus any private helper methods it needs |
 | `src/Claims.Api/ClaimEndpoints.cs` | The method `ToHttpResult`, which turns a claim status into an HTTP response |
-| `tests/Claims.Tests/` | At least two tests of your own, for cases the given tests miss |
+| `tests/Claims.Tests/` | Fixes for 3 wrong tests, and the bodies of 3 empty tests |
 
-| Level | Code to write | Failing tests to fix | Command |
+| Level | Code to write | Tests | Command |
 |---|---|---|---|
-| 1 | Call the steps in order, stop if the policy doesn't cover the claim, catch failures, undo finished steps newest first, and save the final claim. Write `ToHttpResult`. | 13 | `dotnet test --filter Level1` |
-| 2 | Retry each undo, continue when one still fails, ignore the caller's cancellation during undo, save after each step, and keep the claim when the email fails. | 6 | `dotnet test --filter Level2` |
-| 3 | Return the existing claim for a repeated `Idempotency-Key`. Keep the email address out of the logs. | 6 | `dotnet test --filter Level3` |
-
-Another 6 tests send HTTP requests to the stub services, and they pass once the levels are done: `dotnet test --filter EndToEnd`.
+| 1 | Call the steps in order, stop if the policy doesn't cover the claim, catch failures, undo finished steps newest first, and save the final claim. Write `ToHttpResult`. | 15 | `dotnet test --filter Level1` |
+| 2 | Retry each undo, continue when one still fails, ignore the caller's cancellation during undo, save after each step, and keep the claim when the email fails. | 7 | `dotnet test --filter Level2` |
+| 3 | Return the existing claim for a repeated `Idempotency-Key`. Keep the email address out of the logs. | 5 | `dotnet test --filter Level3` |
 
 **Already written, so you only call it:** the five service interfaces and their HTTP clients, `InMemoryClaimStore`, `ClaimRecord` and its statuses, `WorkflowOptions`, the API endpoints, the request validation, and the stub services.
 
@@ -71,9 +69,11 @@ Steps 1 to 4 are required. Step 5 is not: see item 10.
 11. **Duplicates.** Clients retry when a network call fails, so the same request can arrive twice. The `Idempotency-Key` header identifies a request. If the key has a claim already, return that claim and run no steps, even when the first request is still running. Use `IClaimStore.GetOrAddAsync`.
 12. **Logs.** Log enough for support to find a failed claim, including the claim ID and the failed step. Never log the email address.
 
-## Write your own tests
+## Wrong and empty tests
 
-Add at least two tests for cases the given tests miss. `FakeServices` lets you fail any call and run code at an exact point in the workflow. Look at `Level2FailureHandlingTests` for examples.
+Three of the given tests are wrong: they contradict this brief. When a test fails, compare it with the brief before you change your code. If the test is wrong, fix the test.
+
+Three tests are empty. Each has a TODO that says what to check. `FakeServices` lets you fail any call and run code at an exact point in the workflow.
 
 ## Hints
 

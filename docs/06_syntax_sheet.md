@@ -120,4 +120,4 @@ dotnet test --filter Level1
 dotnet run --project src/Claims.Api --urls http://localhost:5100
 ```
 
-`dotnet test` prints each failing test with its expected and actual values, followed by a stack trace. Find the stack trace line that names your own file. It shows where the code failed.
+`dotnet test` prints a failing test with its expected and actual values, followed by a stack trace. Find the stack trace line that names your own file. It shows where the code failed. This project stops at the first failure, but the assessment may print every failure at once.

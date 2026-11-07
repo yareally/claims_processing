@@ -1,4 +1,4 @@
-# Claim Submission Practice
+| 5 | 2. Level 3 | Duplicate requests and the tests in this level. || 15 | 2. Level 2 | Failures during compensation, cancelled requests, failed emails, and the tests in this level. || 20 | 2. Level 1 | The workflow's normal path, compensation (undoing completed steps), status codes, and the tests in this level. |# Claim Submission Practice
 
 A timed practice run for an assessment that asks you to:
 
@@ -22,7 +22,7 @@ The project and the .NET 10 SDK are already on this PC, inside WSL (the Linux sy
    code .
    ```
 
-   You should see 8 tests pass and 31 fail. Those 31 are your work. The last command opens the project in VS Code.
+   All 27 tests fail at the start, and `dotnet test` prints only the first failure. Fix it, run again, and repeat. The last command opens the project in VS Code.
 
 The `solution` branch holds the answers. Stay off it until you finish.
 
@@ -65,8 +65,24 @@ Run the tests for one level:
 dotnet test --filter Level1
 dotnet test --filter Level2
 dotnet test --filter Level3
-dotnet test --filter EndToEnd
 ```
+
+Each run stops at the first failure. To see every failure, run `dotnet test -- xUnit.StopOnFail=false`.
+
+### How to read a failure
+
+```
+Failed SubmitAsync_when_case_step_fails_releases_the_reserve
+Expected: Compensated
+Actual:   InProgress
+  at ...Level1CoreWorkflowTests.cs:line 74
+```
+
+- The test name starts with the method to fix: `SubmitAsync` or `ToHttpResult`.
+- `Expected` and `Actual` show what the check found. The `line` is the check in the test.
+- If your code threw an exception, the first stack trace line names your file and line.
+
+A failing test can also be wrong: see "Wrong and empty tests" in `docs/01_brief.md`.
 
 To see the whole system run, open two terminals:
 
@@ -110,5 +126,5 @@ To try again from a clean start, run `git switch main`, then `git switch -c atte
 |---|---|
 | `src/Claims.Api` | The API you finish. Your two TODOs are in `Workflow/ClaimSubmissionWorkflow.cs` and `ClaimEndpoints.cs`. |
 | `src/Downstream.Stubs` | One small app that stands in for the five services the workflow calls. |
-| `tests/Claims.Tests` | The tests, named by level. |
+| `tests/Claims.Tests` | The tests, one class per level. |
 | `docs/` | The brief, the CI question, the walkthrough, the review drill, and the syntax sheet. |
