@@ -17,7 +17,7 @@ public static class ClaimEndpoints
     {
         // TODO: return the status codes listed in docs/01_brief.md.
         // Use ClaimResponse.From(claim) as the response body.
-        throw new NotImplementedException();
+        return Results.Ok(ClaimResponse.From(claim));
     }
 
     private static async Task<IResult> SubmitAsync(

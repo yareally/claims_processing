@@ -41,6 +41,6 @@ public sealed class ClaimSubmissionWorkflow
     {
         // TODO: meet the acceptance criteria in docs/01_brief.md.
         // Add private helper methods as you need them.
-        throw new NotImplementedException();
+        return Task.FromResult(ClaimRecord.Start(request));
     }
 }

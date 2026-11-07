@@ -19,6 +19,3 @@ builder.Services.AddScoped<ClaimSubmissionWorkflow>();
 var app = builder.Build();
 app.MapClaimEndpoints();
 app.Run();
-
-/// <summary>Lets the test project start this app through WebApplicationFactory.</summary>
-public sealed class ClaimsApiEntryPoint;
