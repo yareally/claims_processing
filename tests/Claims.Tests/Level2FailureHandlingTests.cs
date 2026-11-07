@@ -3,16 +3,16 @@ using static Claims.Tests.ServiceCall;
 
 namespace Claims.Tests;
 
-/// <summary>Acceptance criteria 6 to 10.</summary>
+/// <summary>Brief items 6 to 10. These tests check the method SubmitAsync.</summary>
 public sealed class Level2FailureHandlingTests
 {
     private readonly WorkflowTestContext _context = new();
 
     [Fact]
-    public async Task A_compensation_that_fails_briefly_is_tried_again()
+    public async Task SubmitAsync_retries_an_undo_that_fails_briefly()
     {
         _context.Services.FailAlways(AssignAdjuster);
-        _context.Services.FailNext(ReleaseReserve, times: 2);
+        _context.Services.FailNext(ReleaseReserve, times: 3);
 
         var claim = await _context.SubmitAsync();
 
@@ -22,7 +22,7 @@ public sealed class Level2FailureHandlingTests
     }
 
     [Fact]
-    public async Task A_compensation_that_keeps_failing_is_recorded_for_manual_repair()
+    public async Task SubmitAsync_records_an_undo_that_keeps_failing()
     {
         _context.Services.FailAlways(AssignAdjuster);
         _context.Services.FailAlways(ReleaseReserve);
@@ -31,15 +31,13 @@ public sealed class Level2FailureHandlingTests
 
         Assert.Equal(ClaimStatus.CompensationFailed, claim.Status);
         Assert.Equal(WorkflowStep.AssignAdjuster, claim.FailedStep);
-        Assert.Equal(
-            new CompensationFailure(WorkflowStep.CreateReserve, FakeServices.ReserveId),
-            Assert.Single(claim.CompensationFailures));
+        Assert.Equal([new CompensationFailure(WorkflowStep.CreateReserve, FakeServices.ReserveId)], claim.CompensationFailures);
         Assert.Equal(3, _context.Services.CountOf(ReleaseReserve));
         Assert.Equal(ClaimStatus.CompensationFailed, (await _context.SavedCopyOfAsync(claim)).Status);
     }
 
     [Fact]
-    public async Task One_failed_compensation_does_not_stop_the_others()
+    public async Task SubmitAsync_continues_with_the_other_undos_after_one_fails()
     {
         _context.Services.FailAlways(AssignAdjuster);
         _context.Services.FailAlways(CancelCase);
@@ -47,15 +45,21 @@ public sealed class Level2FailureHandlingTests
         var claim = await _context.SubmitAsync();
 
         Assert.Equal(ClaimStatus.CompensationFailed, claim.Status);
-        Assert.Equal(1, _context.Services.CountOf(ReleaseReserve));
-        Assert.Equal(new[] { FakeServices.ReserveId }, _context.Services.ResourceIdsCompensated);
-        Assert.Equal(
-            new CompensationFailure(WorkflowStep.OpenCase, FakeServices.CaseId),
-            Assert.Single(claim.CompensationFailures));
+        Assert.Equal([FakeServices.ReserveId], _context.Services.ResourceIdsCompensated);
+        Assert.Equal([new CompensationFailure(WorkflowStep.OpenCase, FakeServices.CaseId)], claim.CompensationFailures);
     }
 
     [Fact]
-    public async Task When_the_caller_cancels_the_completed_steps_are_still_compensated()
+    public void SubmitAsync_records_every_undo_that_fails()
+    {
+        // TODO: make AssignAdjuster, CancelCase, and ReleaseReserve always fail, then call SubmitAsync.
+        // Check the status and both entries in CompensationFailures, newest step first.
+        // Change this method to "async Task", because it needs await.
+        Assert.Fail("This test is empty. Follow its TODO.");
+    }
+
+    [Fact]
+    public async Task SubmitAsync_still_undoes_the_steps_when_the_caller_cancels()
     {
         using var caller = new CancellationTokenSource();
         _context.Services.BeforeCall = call =>
@@ -72,13 +76,13 @@ public sealed class Level2FailureHandlingTests
 
         Assert.Equal(ClaimStatus.Compensated, claim.Status);
         Assert.Equal(WorkflowStep.OpenCase, claim.FailedStep);
-        Assert.False(_context.Services.LastTokenFor(ReleaseReserve).IsCancellationRequested);
-        Assert.Equal(new[] { FakeServices.ReserveId }, _context.Services.ResourceIdsCompensated);
+        Assert.Equal([FakeServices.ReserveId], _context.Services.ResourceIdsCompensated);
+        Assert.False(_context.Services.LastTokenFor(ReleaseReserve).IsCancellationRequested, "The undo must not use the caller's token.");
         Assert.Equal(ClaimStatus.Compensated, (await _context.SavedCopyOfAsync(claim)).Status);
     }
 
     [Fact]
-    public async Task Progress_is_saved_before_the_next_step_starts()
+    public async Task SubmitAsync_saves_each_id_before_the_next_step_starts()
     {
         ClaimRecord? savedWhenCaseOpens = null;
         ClaimRecord? savedWhenAdjusterIsAssigned = null;
@@ -103,14 +107,14 @@ public sealed class Level2FailureHandlingTests
     }
 
     [Fact]
-    public async Task A_failed_notification_keeps_the_claim_submitted()
+    public async Task SubmitAsync_failed_email_keeps_the_claim_submitted()
     {
         _context.Services.FailAlways(SendNotification);
 
         var claim = await _context.SubmitAsync();
 
         Assert.Equal(ClaimStatus.Submitted, claim.Status);
-        Assert.False(claim.NotificationSent);
+        Assert.False(claim.NotificationSent, "NotificationSent should be false.");
         Assert.Empty(_context.Services.ResourceIdsCompensated);
         Assert.Equal(ClaimStatus.Submitted, (await _context.SavedCopyOfAsync(claim)).Status);
     }

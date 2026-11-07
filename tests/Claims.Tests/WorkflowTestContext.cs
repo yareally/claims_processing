@@ -42,6 +42,7 @@ public sealed class WorkflowTestContext
     public async Task<ClaimRecord> SavedCopyOfAsync(ClaimRecord claim)
     {
         var saved = await Store.FindAsync(claim.ClaimId, CancellationToken.None);
-        return Assert.IsType<ClaimRecord>(saved);
+        Assert.NotNull(saved);
+        return saved;
     }
 }

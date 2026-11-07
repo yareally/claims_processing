@@ -24,7 +24,6 @@ public sealed class FakeServices :
     public const string CaseId = "CASE-1";
     public const string AssignmentId = "ADJ-1";
 
-    private readonly object _lock = new();
     private readonly List<ServiceCall> _calls = [];
     private readonly List<string> _resourceIdsCompensated = [];
     private readonly Dictionary<ServiceCall, CancellationToken> _lastTokens = [];
@@ -41,48 +40,21 @@ public sealed class FakeServices :
 
     public Guid LastClaimId { get; private set; }
 
-    public IReadOnlyList<ServiceCall> Calls
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return [.. _calls];
-            }
-        }
-    }
+    public IReadOnlyList<ServiceCall> Calls => _calls;
 
-    public IReadOnlyList<string> ResourceIdsCompensated
-    {
-        get
-        {
-            lock (_lock)
-            {
-                return [.. _resourceIdsCompensated];
-            }
-        }
-    }
+    public IReadOnlyList<string> ResourceIdsCompensated => _resourceIdsCompensated;
 
     public void FailAlways(ServiceCall call, Exception? exception = null) => FailNext(call, int.MaxValue, exception);
 
     public void FailNext(ServiceCall call, int times, Exception? exception = null)
     {
-        lock (_lock)
-        {
-            _failuresLeft[call] = times;
-            _exceptions[call] = exception ?? new DownstreamServiceException(call.ToString(), "the test asked for a failure");
-        }
+        _failuresLeft[call] = times;
+        _exceptions[call] = exception ?? new DownstreamServiceException(call.ToString(), "the test asked for a failure");
     }
 
-    public CancellationToken LastTokenFor(ServiceCall call)
-    {
-        lock (_lock)
-        {
-            return _lastTokens[call];
-        }
-    }
+    public CancellationToken LastTokenFor(ServiceCall call) => _lastTokens[call];
 
-    public int CountOf(ServiceCall call) => Calls.Count(recorded => recorded == call);
+    public int CountOf(ServiceCall call) => _calls.Count(recorded => recorded == call);
 
     public async Task<CoverageResult> CheckCoverageAsync(string policyNumber, DateOnly lossDate, CancellationToken cancellationToken)
     {
@@ -100,7 +72,7 @@ public sealed class FakeServices :
     public async Task ReleaseReserveAsync(string reserveId, CancellationToken cancellationToken)
     {
         await RecordAsync(ServiceCall.ReleaseReserve, cancellationToken);
-        RememberCompensated(reserveId);
+        _resourceIdsCompensated.Add(reserveId);
     }
 
     public async Task<string> OpenCaseAsync(Guid claimId, string policyNumber, CancellationToken cancellationToken)
@@ -113,7 +85,7 @@ public sealed class FakeServices :
     public async Task CancelCaseAsync(string caseId, CancellationToken cancellationToken)
     {
         await RecordAsync(ServiceCall.CancelCase, cancellationToken);
-        RememberCompensated(caseId);
+        _resourceIdsCompensated.Add(caseId);
     }
 
     public async Task<string> AssignAdjusterAsync(string caseId, CancellationToken cancellationToken)
@@ -129,11 +101,8 @@ public sealed class FakeServices :
 
     private async Task RecordAsync(ServiceCall call, CancellationToken cancellationToken)
     {
-        lock (_lock)
-        {
-            _calls.Add(call);
-            _lastTokens[call] = cancellationToken;
-        }
+        _calls.Add(call);
+        _lastTokens[call] = cancellationToken;
 
         if (BeforeCall is not null)
         {
@@ -141,31 +110,16 @@ public sealed class FakeServices :
         }
 
         cancellationToken.ThrowIfCancellationRequested();
-        ThrowIfAskedToFail(call);
+
+        if (_failuresLeft.GetValueOrDefault(call) > 0)
+        {
+            _failuresLeft[call]--;
+            throw _exceptions[call];
+        }
 
         if (AfterCall is not null)
         {
             await AfterCall(call);
-        }
-    }
-
-    private void ThrowIfAskedToFail(ServiceCall call)
-    {
-        lock (_lock)
-        {
-            if (_failuresLeft.GetValueOrDefault(call) > 0)
-            {
-                _failuresLeft[call]--;
-                throw _exceptions[call];
-            }
-        }
-    }
-
-    private void RememberCompensated(string resourceId)
-    {
-        lock (_lock)
-        {
-            _resourceIdsCompensated.Add(resourceId);
         }
     }
 }
