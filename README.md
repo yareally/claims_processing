@@ -10,15 +10,19 @@ The assessment itself will differ. This project copies its shape from the invita
 
 ## Set up before the timed run
 
-1. Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
-2. Open a terminal in this folder and run these two commands:
+The project and the .NET 10 SDK are already on this PC, inside WSL (the Linux system that runs under Windows).
+
+1. If VS Code is not installed yet, install [VS Code](https://code.visualstudio.com/) on Windows. Add its **WSL** and **C# Dev Kit** extensions.
+2. Open a WSL terminal: in Windows Terminal, type `wsl`. Then run these commands:
 
    ```
+   cd ~/idea_projects/claims_workflow_practice
    git switch -c my-attempt
    dotnet test
+   code .
    ```
 
-   You should see 8 tests pass and 31 fail. Those 31 are your work.
+   You should see 8 tests pass and 31 fail. Those 31 are your work. The last command opens the project in VS Code.
 
 The `solution` branch holds the answers. Stay off it until you finish.
 
@@ -67,8 +71,6 @@ Then send the requests in `demo.http`. The policy number in the request decides 
    git checkout solution -- tests/Claims.Tests/Hidden
    dotnet test --filter Hidden
    ```
-
-   If you cloned this repo instead of unzipping it, first run `git branch solution origin/solution`.
 
 2. Compare your code with the reference solution:
 
