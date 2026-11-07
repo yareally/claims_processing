@@ -1,0 +1,28 @@
+# Sample requests. Visual Studio and Rider run this file as is. VS Code needs the REST Client extension.
+# Start both apps first (see README.md).
+#
+# Change the policy number to act out a failure:
+#   POL-100            everything works
+#   POL-INACTIVE       the policy does not cover the claim
+#   POL-FAIL-CASE      opening the case fails
+#   POL-FAIL-ADJUSTER  assigning the adjuster fails
+#   POL-FAIL-NOTIFY    the email fails
+#   POL-FAIL-RELEASE   the adjuster step fails, then the reserve cannot be released
+
+@api = http://localhost:5100
+@stubs = http://localhost:5200
+
+### Submit a claim. Use a new Idempotency-Key for each new attempt.
+POST {{api}}/claims
+Content-Type: application/json
+Idempotency-Key: demo-1
+
+{
+  "policyNumber": "POL-100",
+  "claimantEmail": "pat@example.com",
+  "lossDate": "2026-01-15",
+  "estimatedAmount": 2500.00
+}
+
+### See what is still open and the order of the calls.
+GET {{stubs}}/debug/state
