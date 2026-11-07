@@ -34,13 +34,14 @@ public sealed class ClaimSubmissionWorkflow
         _logger = logger;
     }
 
-    public Task<ClaimRecord> SubmitAsync(
+    public async Task<ClaimRecord> SubmitAsync(
         SubmitClaimRequest request,
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
         // TODO: meet the acceptance criteria in docs/01_brief.md.
         // Add private helper methods as you need them.
-        return Task.FromResult(ClaimRecord.Start(request));
+        await Task.CompletedTask; // Delete this line once your code awaits a call.
+        return ClaimRecord.Start(request);
     }
 }
