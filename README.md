@@ -26,13 +26,27 @@ The project and the .NET 10 SDK are already on this PC, inside WSL (the Linux sy
 
 The `solution` branch holds the answers. Stay off it until you finish.
 
-## The timed run (55 minutes, 60 at most)
+## Practise under the same limits
 
-Use the terminal and an editor such as VS Code. You can use an AI assistant throughout: read `docs/04_ai_usage.md` first.
+The Ropes editor is a limited online version of VS Code. Outside AI is not allowed, and the platform watches for it. Its built-in AI tool may do little more than answer questions about the language. So practise without AI help on the design, and read the rules in `docs/04_ai_usage.md`.
+
+Plan three runs:
+
+| Run | Time limit | What you may use | Goal |
+|---|---|---|---|
+| 1 | None | C# extensions, the hints in the brief, `docs/06_syntax_sheet.md` | Learn the design |
+| 2 | 55 minutes | `docs/06_syntax_sheet.md`, C# extensions off | Find what slows you down |
+| 3 | 55 minutes | Language questions only, C# extensions off | Match the assessment |
+
+To turn the C# extensions off, open the Extensions panel in VS Code. On **C# Dev Kit** and **C#**, open the gear menu and choose **Disable (Workspace)**. Then run the tests in the terminal, because the assessment may not have autocomplete or a test panel.
+
+## One timed run (55 minutes, 60 at most)
+
+The minutes are estimates. Adjust them after your first timed run.
 
 | Minutes | Stage | What to do |
 |---|---|---|
-| 5 | 1. Get familiar | Read `docs/01_brief.md`. Find the two TODOs. Run the tests. Send your AI tool one test question. |
+| 5 | 1. Get familiar | Read `docs/01_brief.md`. Find the two TODOs. Run the tests. Answer the design questions in `docs/06_syntax_sheet.md` aloud. |
 | 20 | 2. Level 1 | The workflow's normal path, compensation (undoing completed steps), and status codes. |
 | 15 | 2. Level 2 | Failures during compensation, cancelled requests, and failed emails. |
 | 5 | 2. Level 3 | Duplicate requests. |
@@ -40,6 +54,8 @@ Use the terminal and an editor such as VS Code. You can use an AI assistant thro
 | 5 | 3. Walkthrough | Record yourself answering `docs/03_walkthrough.md`. |
 
 Say your reasoning aloud as you work. The assessment asks for this, and it takes practice.
+
+If time runs short, finish Level 1 first. A working Level 1 is worth more than a half-finished Level 3. Then say aloud what you would do next.
 
 ## Commands
 
@@ -95,4 +111,4 @@ To try again from a clean start, run `git switch main`, then `git switch -c atte
 | `src/Claims.Api` | The API you finish. Your two TODOs are in `Workflow/ClaimSubmissionWorkflow.cs` and `ClaimEndpoints.cs`. |
 | `src/Downstream.Stubs` | One small app that stands in for the five services the workflow calls. |
 | `tests/Claims.Tests` | The tests, named by level. |
-| `docs/` | The brief, the CI question, the walkthrough, AI tips, and the review drill. |
+| `docs/` | The brief, the CI question, the walkthrough, the AI rules, the review drill, and the syntax sheet. |

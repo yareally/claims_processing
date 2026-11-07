@@ -1,39 +1,43 @@
 # Using AI during the run
 
-The invitation lists "AI Usage Quality" as a tested skill. It does not say how it is scored, so read the assessment's own instructions on the day and follow them. The advice below is general practice for working well with an AI tool.
+## Rules for timed runs
 
-## What to do
+Use no AI outside the exercise: no Claude Code, ChatGPT, Copilot, or AI in a browser.
 
-- **Plan first, then ask.** Decide the design yourself, then give the AI one small task at a time.
-- **Give it the rules.** Paste the relevant acceptance criteria and method signatures into your prompt.
+Someone who took an earlier Ropes assessment reports that outside AI is not allowed and is watched for, and that the built-in tool mainly answered questions about the language. That was a different assessment, so this one may differ. Practise for the harder case.
+
+During a timed run, allow yourself language questions only:
+
+| Allowed: about the language | Not allowed: about the design or your code |
+|---|---|
+| How do I remove the top item from a `Stack<T>`? | How should I compensate failed steps? |
+| What does `with` do on a C# record? | Write `SubmitAsync` for me. |
+| How do I return a 503 from a minimal API? | Why does this test fail? |
+
+After a run, use any AI you like to explain what went wrong.
+
+## On the day
+
+1. Read the assessment's own rules. They override this page.
+2. Stay inside the platform, and use only the AI tool it provides.
+3. In Stage 1, ask the tool one language question and one design question. The answers show what it can do.
+4. If it answers only language questions, use it for lookups and make every design decision yourself.
+5. If it can write code, follow the advice below. The invitation lists "AI Usage Quality" as a tested skill, so how you use it may count.
+
+## If the tool can write code
+
+- **Plan first, then ask.** Decide the design yourself, then give the tool one small task at a time.
+- **Give it the rules.** Include the relevant acceptance criteria and method signatures in your prompt.
 - **Read every line before you accept it.** If you cannot explain a line, ask about it or rewrite it.
-- **Run the tests after each change.** Passing tests are evidence. The AI saying the code works is not.
-- **Ask it to attack the code.** For example: "What happens to this code if the caller cancels during the third step?" Then check the answer yourself.
-- **Say out loud what you changed and why.** "It passed the caller's token to the undo call, so I changed that, because a disconnect would leave the money reserved."
+- **Run the tests after each change.** Passing tests are evidence. The tool saying the code works is not.
+- **Say aloud what you changed and why.** For example: "It passed the caller's token to the undo call. I changed that, because a disconnect would leave the money reserved."
 
-## What to avoid
+Avoid pasting the whole brief and accepting the whole answer, or asking "fix this" again and again without reading the error.
 
-- Pasting the whole brief and accepting the whole answer.
-- Asking "fix this" again and again without reading the error.
-- Accepting tests that only repeat what the code already does.
-- Pasting secrets or personal data into a prompt.
-
-## Good and weak prompts
-
-Weak:
+A weak prompt:
 
 > Implement the claim workflow.
 
-Better:
+A better prompt:
 
 > In this C# method, after `CreateReserveAsync` succeeds I want to record how to undo it, so that a later failure can release the reserve. The undo must not use the caller's cancellation token. Show me only the lines to add, and explain why you chose that data structure.
-
-## Keep a short log
-
-During the practice run, write down three things. They give you examples for the walkthrough.
-
-| What I asked | What it gave me | What I kept, changed, or rejected, and why |
-|---|---|---|
-| | | |
-| | | |
-| | | |
