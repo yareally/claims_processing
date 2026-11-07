@@ -1,4 +1,4 @@
-| 5 | 2. Level 3 | Duplicate requests and the tests in this level. || 15 | 2. Level 2 | Failures during compensation, cancelled requests, failed emails, and the tests in this level. || 20 | 2. Level 1 | The workflow's normal path, compensation (undoing completed steps), status codes, and the tests in this level. |# Claim Submission Practice
+| 5 | 2. Level 3 | Duplicate requests. || 15 | 2. Level 2 | Failures during compensation, cancelled requests, and failed emails. || 20 | 2. Level 1 | The workflow's normal path, compensation (undoing completed steps), and status codes. |# Claim Submission Practice
 
 A timed practice run for an assessment that asks you to:
 
@@ -81,8 +81,6 @@ Actual:   InProgress
 - The test name starts with the method to fix: `SubmitAsync` or `ToHttpResult`.
 - `Expected` and `Actual` show what the check found. The `line` is the check in the test.
 - If your code threw an exception, the first stack trace line names your file and line.
-
-A failing test can also be wrong: see "Wrong and empty tests" in `docs/01_brief.md`.
 
 To see the whole system run, open two terminals:
 

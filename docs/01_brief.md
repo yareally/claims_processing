@@ -2,13 +2,12 @@
 
 ## What you need to do
 
-Finish two methods, fix the wrong tests, and fill in the empty tests. Everything else is already written.
+Finish two methods. Everything else is already written, including the tests, which check your code.
 
 | File | What to write |
 |---|---|
 | `src/Claims.Api/Workflow/ClaimSubmissionWorkflow.cs` | The method `SubmitAsync`, plus any private helper methods it needs |
 | `src/Claims.Api/ClaimEndpoints.cs` | The method `ToHttpResult`, which turns a claim status into an HTTP response |
-| `tests/Claims.Tests/` | Fixes for 3 wrong tests, and the bodies of 3 empty tests |
 
 | Level | Code to write | Tests | Command |
 |---|---|---|---|
@@ -68,12 +67,6 @@ Steps 1 to 4 are required. Step 5 is not: see item 10.
 
 11. **Duplicates.** Clients retry when a network call fails, so the same request can arrive twice. The `Idempotency-Key` header identifies a request. If the key has a claim already, return that claim and run no steps, even when the first request is still running. Use `IClaimStore.GetOrAddAsync`.
 12. **Logs.** Log enough for support to find a failed claim, including the claim ID and the failed step. Never log the email address.
-
-## Wrong and empty tests
-
-Three of the given tests are wrong: they contradict this brief. When a test fails, compare it with the brief before you change your code. If the test is wrong, fix the test.
-
-Three tests are empty. Each has a TODO that says what to check. `FakeServices` lets you fail any call and run code at an exact point in the workflow.
 
 ## Hints
 
