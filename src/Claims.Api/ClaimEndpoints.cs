@@ -15,9 +15,16 @@ public static class ClaimEndpoints
     /// <summary>Turns a finished claim into the HTTP response the caller receives.</summary>
     public static IResult ToHttpResult(ClaimRecord claim)
     {
-        // TODO: return the status codes listed in docs/01_brief.md.
-        // Use ClaimResponse.From(claim) as the response body.
-        return Results.StatusCode(StatusCodes.Status501NotImplemented);
+        var body = ClaimResponse.From(claim);
+        return claim.Status switch
+        {
+            ClaimStatus.Submitted => Results.Created($"/claims/{claim.ClaimId}", body),
+            ClaimStatus.Rejected => Results.Json(body, statusCode: StatusCodes.Status422UnprocessableEntity),
+            ClaimStatus.InProgress => Results.Json(body, statusCode: StatusCodes.Status409Conflict),
+            ClaimStatus.Compensated => Results.Json(body, statusCode: StatusCodes.Status503ServiceUnavailable),
+            ClaimStatus.CompensationFailed => Results.Json(body, statusCode: StatusCodes.Status500InternalServerError),
+            _ => throw new InvalidOperationException($"Unknown claim status: {claim.Status}"),
+        };
     }
 
     private static async Task<IResult> SubmitAsync(
