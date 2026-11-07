@@ -15,6 +15,8 @@ Finish two methods. Everything else is already written, including the tests, whi
 | 2 | Retry each undo, continue when one still fails, ignore the caller's cancellation during undo, save after each step, and keep the claim when the email fails. | 7 | `dotnet test --filter Level2` |
 | 3 | Return the existing claim for a repeated `Idempotency-Key`. Keep the email address out of the logs. | 5 | `dotnet test --filter Level3` |
 
+**Errors and exceptions:** read "How failures reach your code" below before you start. It lists the exceptions the services throw and where your code must catch them.
+
 **Already written, so you only call it:** the five service interfaces and their HTTP clients, `InMemoryClaimStore`, `ClaimRecord` and its statuses, `WorkflowOptions`, the API endpoints, the request validation, and the stub services.
 
 Do not change the public method signatures, because the tests depend on them. The numbered acceptance criteria below give the details.
