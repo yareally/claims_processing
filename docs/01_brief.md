@@ -37,6 +37,40 @@ No single database transaction can cover five separate services. Each service co
 
 Steps 1 to 4 are required. Step 5 is not: see item 10.
 
+## How failures reach your code
+
+`SubmitAsync` never throws. Every outcome, failures included, ends with `SubmitAsync` returning a claim that has a status.
+
+A service reports a failure by throwing an exception:
+
+| What happens | What your code sees | What to do |
+|---|---|---|
+| A service returns an error, times out, or can't be reached | The call throws `DownstreamServiceException` | Treat the step as failed |
+| The caller disconnects | The next call that gets `cancellationToken` throws `OperationCanceledException` | Treat the step as failed |
+| A bug, or a failed save | Any other exception | Treat the step as failed |
+| The policy doesn't cover the claim | `CheckCoverageAsync` returns `IsCovered = false`, with no exception | Reject the claim (item 2) |
+
+So catch `Exception`, not only `DownstreamServiceException`. You need three kinds of `try`/`catch`:
+
+1. **One around steps 1 to 4.** After each step that creates something, record how to undo it before you save. Then a failed save still undoes that step. In the `catch`, log the exception, set `FailedStep` to the step that was running, and undo the recorded steps newest first (item 3).
+2. **One around each undo call.** Catch, log, and try again (item 6). After the last attempt, add a `CompensationFailure` and go on to the next undo (item 7).
+3. **One around the email (step 5).** Catch, log, and return the `Submitted` claim with `NotificationSent` false (item 10).
+
+Pass `CancellationToken.None` to every undo call and every final save, so a disconnected caller cannot stop them (item 8).
+
+The shape of the first one:
+
+```csharp
+try
+{
+    // Steps 1 to 4. After each step that creates something, record its undo, then save.
+}
+catch (Exception exception)
+{
+    // Log the exception, then undo the recorded steps, newest first.
+}
+```
+
 ## Acceptance criteria
 
 ### Level 1: the core workflow
@@ -75,4 +109,3 @@ Read these only if you are stuck.
 - `ClaimRecord` cannot be changed in place. Write `claim = claim with { ReserveId = id };`.
 - Think about the data structure that returns the newest item first.
 - `CancellationToken.None` is a token that never cancels.
-- `HttpClient` timeouts already raise `DownstreamServiceException`, so one failed attempt cannot hang forever.
