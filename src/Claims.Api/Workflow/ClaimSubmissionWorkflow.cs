@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Claims.Api.Services;
 
 namespace Claims.Api.Workflow;
@@ -41,7 +42,58 @@ public sealed class ClaimSubmissionWorkflow
     {
         // TODO: meet the acceptance criteria in docs/01_brief.md.
         // Add private helper methods as you need them.
-        await Task.CompletedTask; // Delete this line once your code awaits a call.
-        return ClaimRecord.Start(request);
+        // await Task.CompletedTask; // Delete this line once your code awaits a call.
+        // // return ClaimRecord.Start(request);
+
+        string? failedStep = null;
+        string? reserveId = null;
+        string? caseId = null;
+        string? assignmentId = null;
+        var claim = await _store.GetOrAddAsync(idempotencyKey, ClaimRecord.Start(request), cancellationToken);
+        _logger.LogInformation("Checking policy coverage for claim");
+     
+
+        try {
+            
+            // var checkCoverageWS = WorkflowStep.CheckCoverage;
+
+            CoverageResult coverageResult = await _policy.CheckCoverageAsync(request.PolicyNumber, request.LossDate, cancellationToken);
+            if (!coverageResult.IsCovered)
+            {
+                return claim  with {Status = ClaimStatus.Rejected, RejectionReason = coverageResult.Reason};
+            }
+            // var createReserveWS = WorkflowStep.CreateReserve;
+            failedStep = "CreateReserve";
+            reserveId = await _reserve.CreateReserveAsync(claim.ClaimId, claim.PolicyNumber, claim.EstimatedAmount,cancellationToken);
+           
+            // var openCaseWS = WorkflowStep.OpenCase;
+            failedStep = "OpenCase";
+            caseId = await _cases.OpenCaseAsync(claim.ClaimId, claim.PolicyNumber, cancellationToken);
+             if (failedStep == "OpenCase")
+            {
+                await _reserve.ReleaseReserveAsync(reserveId, cancellationToken);
+                return claim with {Status = ClaimStatus.Compensated, FailedStep = WorkflowStep.OpenCase};
+            }
+
+            // var assignAdjusterWS = WorkflowStep.AssignAdjuster;
+            failedStep = "AssignAdjuster";
+            assignmentId = await _adjusters.AssignAdjusterAsync(caseId, cancellationToken);
+
+            await _notifications.SendClaimReceivedAsync(claim.ClaimantEmail, claim.ClaimId, cancellationToken);
+            // await Task.CompletedTask;
+
+            await _store.SaveAsync(claim with {ReserveId = reserveId, CaseId = caseId, AssignmentId = assignmentId, Status = ClaimStatus.Submitted, NotificationSent = true}, cancellationToken);
+
+        } catch (Exception exception)
+        {
+            if (failedStep == "CreateReserve")
+            {
+                await _reserve.ReleaseReserveAsync(reserveId, cancellationToken);
+                return claim with {Status = ClaimStatus.Compensated, FailedStep = WorkflowStep.CreateReserve};
+            }
+            
+        }
+        // await _store.SaveAsync(claim, cancellationToken);
+        return claim;
     }
 }

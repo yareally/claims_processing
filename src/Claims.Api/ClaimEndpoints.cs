@@ -17,7 +17,17 @@ public static class ClaimEndpoints
     {
         // TODO: return the status codes listed in docs/01_brief.md.
         // Use ClaimResponse.From(claim) as the response body.
-        return Results.StatusCode(StatusCodes.Status501NotImplemented);
+        var claimResponse = ClaimResponse.From(claim);
+        var statusCode = claim.Status switch
+        {
+          ClaimStatus.Submitted => 201,
+          ClaimStatus.Rejected => 422,
+          ClaimStatus.InProgress => 409,
+          ClaimStatus.Compensated => 503,
+          _ => 500  
+        };
+      
+        return Results.Json(claimResponse, statusCode: statusCode);
     }
 
     private static async Task<IResult> SubmitAsync(
